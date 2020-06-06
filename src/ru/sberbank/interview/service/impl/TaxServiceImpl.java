@@ -1,7 +1,7 @@
-package ru.sberbank.intertview.service.impl;
+package ru.sberbank.interview.service.impl;
 
-import ru.sberbank.intertview.Range;
 import ru.sberbank.intertview.service.TaxService;
+import ru.sberbank.interview.model.Range;
 
 import java.util.List;
 
@@ -26,7 +26,23 @@ public class TaxServiceImpl implements TaxService {
      * 3) 10 тыс = 25% - 2500
      * */
 
-    private List<Range> rangeList;
+    /*
+     * Range 1: 0 to 10
+     * Salary: 60
+     * result = 10 * percent
+     *
+     *
+     * Range 2: 10 to 50
+     * Salary: 60
+     * result = (end - start) * percent
+     *
+     *
+     * Range 3: 50 ....
+     * result = (salary - start) * percent
+     *
+     * */
+
+    private final List<Range> rangeList;
 
     public TaxServiceImpl(List<Range> rangeList) {
         this.rangeList = rangeList;
@@ -35,28 +51,12 @@ public class TaxServiceImpl implements TaxService {
     @Override
     public double getTax(double salary) {
 
-        /*
-         * Range 1: 0 to 10
-         * Salary: 60
-         * result = 10 * percent
-         *
-         *
-         * Range 2: 10 to 50
-         * Salary: 60
-         * result = (end - start) * percent
-         *
-         *
-         * Range 3: 50 ....
-         * result = (salary - start) * percent
-         *
-         * */
-
         return rangeList
                 .stream()
                 .filter(range -> isAcceptableRange(salary, range))
                 .map(range -> getTaxForRange(salary, range))
                 .reduce(Double::sum)
-                .get();
+                .orElseThrow(() -> new RuntimeException("Something went wrong."));
     }
 
     private boolean isAcceptableRange(double salary, Range range) {
